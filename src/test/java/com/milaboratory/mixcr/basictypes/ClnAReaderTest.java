@@ -51,6 +51,44 @@ public class ClnAReaderTest {
             CUtils.it(c.alignments()).forEach(a -> {
                 assertEquals(c.cloneId, a.getCloneIndex());
                 if (a.getMappingType() == ReadToCloneMapping.MappingType.Core)
+                    assertEquals(c.clone.getFeature(GeneFeature.CDR3).getSequence(), a.getFeature(GeneFeature.CDR3).getSequence());
+            });
+        }
+    }
+
+    @Test
+    public void testConcurrentRead1() throws Exception {
+        RunMiXCR.RunMiXCRAnalysis params = new RunMiXCR.RunMiXCRAnalysis(
+                RunMiXCR.class.getResource("/sequences/big/CD4M1_test_R1.fastq.gz").getFile(),
+                RunMiXCR.class.getResource("/sequences/big/CD4M1_test_R2.fastq.gz").getFile());
+
+        params.cloneAssemblerParameters.setAddReadsCountOnClustering(true);
+        RunMiXCR.AlignResult align = RunMiXCR.align(params);
+        RunMiXCR.AssembleResult assemble = RunMiXCR.assemble(align, false);
+
+        AlignmentsMappingMerger merged = new AlignmentsMappingMerger(align.resultReader(), assemble.cloneAssembler.getAssembledReadsPort());
+
+        File file = TempFileManager.getTempFile();
+        ClnAWriter writer = new ClnAWriter(file);
+        writer.writeClones(assemble.cloneSet, align.parameters.alignerParameters);
+        writer.sortAlignments(merged, align.alignments.size());
+        writer.writeAlignmentsAndIndex();
+
+        writer.close();
+
+        ClnAReader reader = new ClnAReader(file.toPath(), VDJCLibraryRegistry.createDefaultRegistry(), 17);
+
+        assertEquals(MiXCRVersionInfo.get().getVersionString(MiXCRVersionInfo.OutputType.ToFile), reader.getVersionInfo());
+
+        assertEquals(align.alignments.size(), reader.numberOfAlignments());
+        assertEquals(assemble.cloneSet.size(), reader.numberOfClones());
+
+        for (ClnAReader.CloneAlignments c : CUtils.it(reader.clonesAndAlignments())) {
+            assertEquals("" + c.cloneId, c.clone.count, count(c.alignments()), 0.01);
+            assertEquals(c.cloneId, c.clone.id);
+            CUtils.it(c.alignments()).forEach(a -> {
+                assertEquals(c.cloneId, a.getCloneIndex());
+                if (a.getMappingType() == ReadToCloneMapping.MappingType.Core)
                     assertEquals(c.clone.getFeature(GeneFeature.CDR3), a.getFeature(GeneFeature.CDR3));
             });
         }
