@@ -108,7 +108,6 @@ public class TargetMerger {
             result.put(geneType, resultingHits.toArray(new VDJCHit[resultingHits.size()]));
         }
 
-
         VDJCAlignments alignments = new VDJCAlignments(result,
                 new NSequenceWithQuality[]{mergedTarget},
                 new SequenceHistory[]{

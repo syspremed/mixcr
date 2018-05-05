@@ -459,7 +459,11 @@ public final class VDJCObjectExtender<T extends VDJCObject> implements Processor
                 transformer.transform(alignment.getHistory()),
                 alignment.getOriginalReads() == null
                         ? null
-                        : alignment.getOriginalReads().toArray(new SequenceRead[alignment.getOriginalReads().size()]))
+                        : alignment.getOriginalReads().toArray(new SequenceRead[alignment.getOriginalReads().size()]),
+                alignment.getMappingTypeByte(),
+                alignment.getCloneIndex(),
+                alignment.
+                )
                 .setAlignmentsIndex(alignment.getAlignmentsIndex());
     }
 

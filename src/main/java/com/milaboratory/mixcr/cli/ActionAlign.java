@@ -267,9 +267,7 @@ public class ActionAlign implements Action {
                 VDJCAlignments alignment = result.alignment;
                 SequenceRead read = result.read;
                 if (alignment == null) {
-                    if (writeAllResults)
-                    // Creating empty alignment object if alignment for current read failed
-                    {
+                    if (writeAllResults) { // Creating empty alignment object if alignment for current read failed
                         Target target = readsLayout.createTargets(read)[0];
                         alignment = new VDJCAlignments(emptyHits,
                                 target.targets,

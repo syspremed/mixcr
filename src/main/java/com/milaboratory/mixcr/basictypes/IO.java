@@ -92,6 +92,7 @@ class IO {
             output.writeByte(object.mappingType);
             if (!ReadToCloneMapping.isDropped(object.mappingType))
                 output.writeVarInt(object.cloneIndex);
+            output.writeObject(object.tagValues);
         }
 
         @Override
@@ -111,7 +112,8 @@ class IO {
             int cloneIndex = -1;
             if (!ReadToCloneMapping.isDropped(mappingType))
                 cloneIndex = input.readVarInt();
-            return new VDJCAlignments(hits, targets, history, originalReads, mappingType, cloneIndex);
+            String[] tagValue = input.readObject(String[].class);
+            return new VDJCAlignments(hits, targets, history, originalReads, mappingType, cloneIndex, tagValue);
         }
 
         @Override
